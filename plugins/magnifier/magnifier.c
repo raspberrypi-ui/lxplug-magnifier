@@ -50,6 +50,14 @@ typedef struct
     GtkWidget *tray_icon;           /* Displayed image */
     config_setting_t *settings;     /* Plugin settings */
     int pid;                        /* PID for magnifier executable */
+    int shape;
+    int width;
+    int height;
+    int zoom;
+    gboolean statwin;
+    gboolean followf;
+    gboolean followt;
+    gboolean filter;
 } MagnifierPlugin;
 
 
@@ -91,6 +99,37 @@ static void mag_configuration_changed (LXPanel *panel, GtkWidget *p)
     MagnifierPlugin *mag = lxpanel_plugin_get_data (p);
 }
 
+void run_magnifier (MagnifierPlugin *mag)
+{
+    // create the command line arguments
+    char *args[12];
+    int arg = 0;
+    args[arg++] = strdup ("mouseloupe");
+
+    if (mag->shape == 0)
+    {
+        args[arg++] = strdup ("-c");
+        args[arg++] = g_strdup_printf ("%d", mag->width);
+    }
+    else
+    {
+        args[arg++] = strdup ("-r");
+        args[arg++] = g_strdup_printf ("%d", mag->width);
+        args[arg++] = g_strdup_printf ("%d", mag->height);
+    }
+
+    args[arg++] = strdup ("-z");
+    args[arg++] = g_strdup_printf ("%d", mag->zoom);
+
+    if (mag->statwin) args[arg++] = strdup ("-s");
+    if (mag->followf) args[arg++] = strdup ("-m");
+    if (mag->followt) args[arg++] = strdup ("-t");
+    if (mag->filter) args[arg++] = strdup ("-f");
+    args[arg] = NULL;
+
+    execv ("/usr/bin/mouseloupe", args);
+}
+
 
 /* Handler for menu button click */
 static gboolean mag_button_press_event (GtkWidget *widget, GdkEventButton *event, LXPanel *panel)
@@ -111,7 +150,7 @@ static gboolean mag_button_press_event (GtkWidget *widget, GdkEventButton *event
             if (mag->pid == 0)
             {
                 // new child process
-                execl ("/usr/bin/mouseloupe", NULL);
+                run_magnifier (mag);
                 exit (0);
             }
         }
@@ -182,6 +221,15 @@ static GtkWidget *mag_configure (LXPanel *panel, GtkWidget *p)
     
     return lxpanel_generic_config_dlg (_("Virtual Magnifier"), panel,
         mag_apply_configuration, p,
+        _("Circle"), &mag->shape, CONF_TYPE_RBUTTON,
+        _("Rectangle"), &mag->shape, CONF_TYPE_RBUTTON,
+        _("Width"), &mag->width, CONF_TYPE_INT,
+        _("Height"), &mag->height, CONF_TYPE_INT,
+        _("Zoom"), &mag->zoom, CONF_TYPE_INT,
+        _("Static window"), &mag->statwin, CONF_TYPE_BOOL,
+        _("Follow focus"), &mag->followf, CONF_TYPE_BOOL,
+        _("Follow text cursor"), &mag->followt, CONF_TYPE_BOOL,
+        _("Bilinear filter"), &mag->filter, CONF_TYPE_BOOL,
         NULL);
 }
 
