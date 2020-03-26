@@ -93,12 +93,6 @@ static void set_icon (LXPanel *p, GtkWidget *image, const char *icon, int size)
 }
 
 
-/* Handler for configure_event on drawing area. */
-static void mag_configuration_changed (LXPanel *panel, GtkWidget *p)
-{
-    MagnifierPlugin *mag = lxpanel_plugin_get_data (p);
-}
-
 void run_magnifier (MagnifierPlugin *mag)
 {
     // create the command line arguments
@@ -128,6 +122,25 @@ void run_magnifier (MagnifierPlugin *mag)
     args[arg] = NULL;
 
     execv ("/usr/bin/mouseloupe", args);
+}
+
+
+/* Handler for configure_event on drawing area. */
+static void mag_configuration_changed (LXPanel *panel, GtkWidget *p)
+{
+    MagnifierPlugin *mag = lxpanel_plugin_get_data (p);
+
+    if (mag->pid != -1)
+    {
+        kill (mag->pid, SIGTERM);
+        mag->pid = fork ();
+        if (mag->pid == 0)
+        {
+            // new child process
+            run_magnifier (mag);
+            exit (0);
+        }
+    }
 }
 
 
@@ -173,11 +186,15 @@ static void mag_destructor (gpointer user_data)
     g_free (mag);
 }
 
+
+#define READ_VAL(name,var,low,high,def) if (config_setting_lookup_int (settings, name, &val)) { if (val >= low || val <= high) var = val; else var = def; } else var = def;
+
 /* Plugin constructor. */
 static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
 {
     /* Allocate plugin context and set into Plugin private data pointer. */
     MagnifierPlugin *mag = g_new0 (MagnifierPlugin, 1);
+    int val;
 
 #ifdef ENABLE_NLS
     setlocale (LC_ALL, "");
@@ -185,6 +202,15 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
     textdomain (GETTEXT_PACKAGE);
 #endif
+
+    READ_VAL ("Shape", mag->shape, -1, 0, 0);
+    READ_VAL ("Zoom", mag->zoom, 2, 16, 2);
+    READ_VAL ("Width", mag->width, 100, 600, 350);
+    READ_VAL ("Height", mag->height, 100, 600, 350);
+    READ_VAL ("StaticWin", mag->statwin, 0, 1, 0);
+    READ_VAL ("FollowFocus", mag->followf, 0, 1, 0);
+    READ_VAL ("FollowText", mag->followt, 0, 1, 0);
+    READ_VAL ("UseFilter", mag->filter, 0, 1, 0);
 
     /* Create icon */
     mag->tray_icon = gtk_image_new ();
@@ -212,6 +238,27 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
 static gboolean mag_apply_configuration (gpointer user_data)
 {
     MagnifierPlugin *mag = lxpanel_plugin_get_data ((GtkWidget *) user_data);
+
+    config_group_set_int (mag->settings, "Shape", mag->shape);
+    config_group_set_int (mag->settings, "Width", mag->width);
+    config_group_set_int (mag->settings, "Height", mag->height);
+    config_group_set_int (mag->settings, "Zoom", mag->zoom);
+    config_group_set_int (mag->settings, "StaticWin", mag->statwin);
+    config_group_set_int (mag->settings, "FollowText", mag->followt);
+    config_group_set_int (mag->settings, "FollowFocus", mag->followf);
+    config_group_set_int (mag->settings, "UseFilter", mag->filter);
+
+    if (mag->pid != -1)
+    {
+        kill (mag->pid, SIGTERM);
+        mag->pid = fork ();
+        if (mag->pid == 0)
+        {
+            // new child process
+            run_magnifier (mag);
+            exit (0);
+        }
+    }
 }
 
 /* Callback when the configuration dialog is to be shown. */
