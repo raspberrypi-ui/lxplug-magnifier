@@ -122,6 +122,8 @@ void run_magnifier (MagnifierPlugin *mag)
     if (mag->statwin)
     {
         args[arg++] = strdup ("-s");
+        if (mag->x < 0) mag->x = 0;
+        if (mag->y < 0) mag->y = 0;
         args[arg++] = g_strdup_printf ("%d", mag->x);
         args[arg++] = g_strdup_printf ("%d", mag->y);
     }
