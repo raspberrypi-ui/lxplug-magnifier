@@ -131,7 +131,12 @@ void run_magnifier (MagnifierPlugin *mag)
     if (mag->filter) args[arg++] = strdup ("-f");
     args[arg] = NULL;
 
+    // launch the magnifier with the argument array
     execv ("/usr/bin/" MAG_PROG, args);
+
+    // free the array
+    arg = 0;
+    while (args[arg]) g_free (args[arg++]);
 }
 
 
@@ -156,6 +161,7 @@ static gboolean mag_button_press_event (GtkWidget *widget, GdkEventButton *event
     {
         if (mag->pid == -1)
         {
+            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mag->plugin), TRUE);
             mag->pid = fork ();
 
             if (mag->pid == 0)
@@ -167,6 +173,7 @@ static gboolean mag_button_press_event (GtkWidget *widget, GdkEventButton *event
         }
         else
         {
+            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mag->plugin), FALSE);
             kill (mag->pid, SIGTERM);
             mag->pid = -1;
         }
@@ -220,7 +227,7 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
 
     /* Allocate top level widget and set into Plugin widget pointer. */
     mag->panel = panel;
-    mag->plugin = gtk_button_new ();
+    mag->plugin = gtk_toggle_button_new ();
     gtk_button_set_relief (GTK_BUTTON (mag->plugin), GTK_RELIEF_NONE);
     g_signal_connect (mag->plugin, "button-press-event", G_CALLBACK (mag_button_press_event), NULL);
     mag->settings = settings;
@@ -274,7 +281,7 @@ static gboolean mag_control_msg (GtkWidget *plugin, const char *cmd)
         int scr = DefaultScreen (dsp);
         Window rootwin = RootWindow (dsp, scr);
         XQueryTree (dsp, rootwin, &root, &nullwd, &children, &nwins);
-        XGetGeometry (dsp, children[nwins - 1], &root, &mag->x, &mag->y, &null, &null, &null, &null); 
+        XGetGeometry (dsp, children[nwins - 1], &root, &mag->x, &mag->y, &null, &null, &null, &null);
         config_group_set_int (mag->settings, "StatX", mag->x);
         config_group_set_int (mag->settings, "StatY", mag->y);
         lxpanel_config_save (mag->panel);
