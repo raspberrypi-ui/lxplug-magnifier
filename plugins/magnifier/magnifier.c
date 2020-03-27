@@ -41,6 +41,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "plugin.h"
 
+#define MAG_PROG "magnifier"
+
 /* Private context for plugin */
 
 typedef struct
@@ -54,6 +56,8 @@ typedef struct
     int width;
     int height;
     int zoom;
+    int x;
+    int y;
     gboolean statwin;
     gboolean followf;
     gboolean followt;
@@ -96,32 +100,38 @@ static void set_icon (LXPanel *p, GtkWidget *image, const char *icon, int size)
 void run_magnifier (MagnifierPlugin *mag)
 {
     // create the command line arguments
-    char *args[12];
+    char *args[16];
     int arg = 0;
-    args[arg++] = strdup ("mouseloupe");
+    args[arg++] = strdup (MAG_PROG);
 
-    if (mag->shape == 0)
-    {
-        args[arg++] = strdup ("-c");
-        args[arg++] = g_strdup_printf ("%d", mag->width);
-    }
-    else
+    if (mag->shape)
     {
         args[arg++] = strdup ("-r");
         args[arg++] = g_strdup_printf ("%d", mag->width);
         args[arg++] = g_strdup_printf ("%d", mag->height);
     }
+    else
+    {
+        args[arg++] = strdup ("-c");
+        args[arg++] = g_strdup_printf ("%d", mag->width);
+    }
 
     args[arg++] = strdup ("-z");
     args[arg++] = g_strdup_printf ("%d", mag->zoom);
 
-    if (mag->statwin) args[arg++] = strdup ("-s");
+    if (mag->statwin)
+    {
+        args[arg++] = strdup ("-s");
+        args[arg++] = g_strdup_printf ("%d", mag->x);
+        args[arg++] = g_strdup_printf ("%d", mag->y);
+    }
+
     if (mag->followf) args[arg++] = strdup ("-m");
     if (mag->followt) args[arg++] = strdup ("-t");
     if (mag->filter) args[arg++] = strdup ("-f");
     args[arg] = NULL;
 
-    execv ("/usr/bin/mouseloupe", args);
+    execv ("/usr/bin/" MAG_PROG, args);
 }
 
 
@@ -129,18 +139,6 @@ void run_magnifier (MagnifierPlugin *mag)
 static void mag_configuration_changed (LXPanel *panel, GtkWidget *p)
 {
     MagnifierPlugin *mag = lxpanel_plugin_get_data (p);
-
-    if (mag->pid != -1)
-    {
-        kill (mag->pid, SIGTERM);
-        mag->pid = fork ();
-        if (mag->pid == 0)
-        {
-            // new child process
-            run_magnifier (mag);
-            exit (0);
-        }
-    }
 }
 
 
@@ -211,6 +209,8 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
     READ_VAL ("FollowFocus", mag->followf, 0, 1, 0);
     READ_VAL ("FollowText", mag->followt, 0, 1, 0);
     READ_VAL ("UseFilter", mag->filter, 0, 1, 0);
+    READ_VAL ("StatX", mag->x, 0, 2000, 0);
+    READ_VAL ("StatY", mag->y, 0, 2000, 0);
 
     /* Create icon */
     mag->tray_icon = gtk_image_new ();
@@ -261,6 +261,29 @@ static gboolean mag_apply_configuration (gpointer user_data)
     }
 }
 
+static gboolean mag_control_msg (GtkWidget *plugin, const char *cmd)
+{
+    MagnifierPlugin *mag = lxpanel_plugin_get_data (plugin);
+
+    if (!strncmp (cmd, "pos", 3))
+    {
+        // get the location of the topmost window, which is the loupe
+        Window root, nullwd, *children;
+        int nwins, null;
+        Display *dsp = XOpenDisplay (NULL);
+        int scr = DefaultScreen (dsp);
+        Window rootwin = RootWindow (dsp, scr);
+        XQueryTree (dsp, rootwin, &root, &nullwd, &children, &nwins);
+        XGetGeometry (dsp, children[nwins - 1], &root, &mag->x, &mag->y, &null, &null, &null, &null); 
+        config_group_set_int (mag->settings, "StatX", mag->x);
+        config_group_set_int (mag->settings, "StatY", mag->y);
+        lxpanel_config_save (mag->panel);
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 /* Callback when the configuration dialog is to be shown. */
 static GtkWidget *mag_configure (LXPanel *panel, GtkWidget *p)
 {
@@ -289,4 +312,5 @@ LXPanelPluginInit fm_module_init_lxpanel_gtk = {
     .description = N_("Virtual magnifying glass"),
     .new_instance = mag_constructor,
     .reconfigure = mag_configuration_changed,
+    .control = mag_control_msg,
 };
