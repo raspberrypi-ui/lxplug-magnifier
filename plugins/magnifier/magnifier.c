@@ -41,7 +41,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "plugin.h"
 
-#define MAG_PROG "magnifier"
+#define MAG_PROG "mag-pi"
 
 /* Private context for plugin */
 
@@ -244,6 +244,8 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
     return mag->plugin;
 }
 
+#define BOUNDS(var,min,max) if (var < min) var = min; if (var > max) var = max;
+
 static gboolean mag_apply_configuration (gpointer user_data)
 {
     MagnifierPlugin *mag = lxpanel_plugin_get_data ((GtkWidget *) user_data);
@@ -256,6 +258,18 @@ static gboolean mag_apply_configuration (gpointer user_data)
     config_group_set_int (mag->settings, "FollowText", mag->followt);
     config_group_set_int (mag->settings, "FollowFocus", mag->followf);
     config_group_set_int (mag->settings, "UseFilter", mag->filter);
+
+    // check bounds
+    BOUNDS (mag->zoom, 2, 16);
+    if (mag->shape == 0)
+    {
+        BOUNDS (mag->width, 100, 600);
+    }
+    else
+    {
+        BOUNDS (mag->width, 100, 800);
+        BOUNDS (mag->height, 50, 600);
+    }
 
     if (mag->pid != -1)
     {
