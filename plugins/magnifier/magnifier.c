@@ -38,6 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sys/sysinfo.h>
 #include <stdlib.h>
 #include <glib/gi18n.h>
+#include <errno.h>
 
 #include "plugin.h"
 
@@ -161,6 +162,8 @@ static gboolean mag_button_press_event (GtkWidget *widget, GdkEventButton *event
     /* Launch or kill the magnifier application on left-click */
     if (event->button == 1)
     {
+        // check the process hasn't died...
+        if (kill (mag->pid, 0) == -1 && errno == ESRCH) mag->pid = -1;
         if (mag->pid == -1)
         {
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mag->plugin), TRUE);
@@ -220,6 +223,9 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
     READ_VAL ("UseFilter", mag->filter, 0, 1, 0);
     READ_VAL ("StatX", mag->x, 0, 2000, 0);
     READ_VAL ("StatY", mag->y, 0, 2000, 0);
+
+    // terminate zombie magnifiers automatically
+    signal (SIGCHLD, SIG_IGN);
 
     /* Create icon */
     mag->tray_icon = gtk_image_new ();
