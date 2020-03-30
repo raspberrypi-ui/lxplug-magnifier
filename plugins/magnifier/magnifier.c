@@ -39,10 +39,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <glib/gi18n.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include "plugin.h"
 
-#define MAG_PROG "mag-pi"
+#define MAG_PROG "mage"
 
 /* Private context for plugin */
 
@@ -245,6 +246,12 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
     /* Allocate icon as a child of top level */
     gtk_container_add (GTK_CONTAINER (mag->plugin), mag->tray_icon);
 
+    /* Hide the icon if there's no magnifier installed */
+    if (access ("/usr/bin/" MAG_PROG, F_OK) == -1)
+    {
+        gtk_widget_hide_all (mag->plugin);
+        gtk_widget_set_sensitive (mag->plugin, FALSE);
+    }
     mag->pid = -1;
 
     return mag->plugin;
