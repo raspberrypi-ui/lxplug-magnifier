@@ -206,6 +206,8 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
     /* Allocate plugin context and set into Plugin private data pointer. */
     MagnifierPlugin *mag = g_new0 (MagnifierPlugin, 1);
     int val;
+    mag->panel = panel;
+    mag->settings = settings;
 
 #ifdef ENABLE_NLS
     setlocale (LC_ALL, "");
@@ -228,32 +230,30 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
     // terminate zombie magnifiers automatically
     signal (SIGCHLD, SIG_IGN);
 
-    /* Create icon */
-    mag->tray_icon = gtk_image_new ();
-    set_icon (panel, mag->tray_icon, "system-search", 0);
-    gtk_widget_set_tooltip_text (mag->tray_icon, _("Show virtual magnifier"));
-    gtk_widget_set_visible (mag->tray_icon, TRUE);
-
-    /* Allocate top level widget and set into Plugin widget pointer. */
-    mag->panel = panel;
-    mag->plugin = gtk_toggle_button_new ();
-    gtk_button_set_relief (GTK_BUTTON (mag->plugin), GTK_RELIEF_NONE);
-    g_signal_connect (mag->plugin, "button-press-event", G_CALLBACK (mag_button_press_event), NULL);
-    mag->settings = settings;
-    lxpanel_plugin_set_data (mag->plugin, mag, mag_destructor);
-    gtk_widget_add_events (mag->plugin, GDK_BUTTON_PRESS_MASK);
-
-    /* Allocate icon as a child of top level */
-    gtk_container_add (GTK_CONTAINER (mag->plugin), mag->tray_icon);
-
-    /* Hide the icon if there's no magnifier installed */
-    if (access ("/usr/bin/" MAG_PROG, F_OK) == -1)
+    if (access ("/usr/bin/" MAG_PROG, F_OK) != -1)
     {
-        gtk_widget_hide_all (mag->plugin);
-        gtk_widget_set_sensitive (mag->plugin, FALSE);
-    }
-    mag->pid = -1;
+        /* Allocate top level widget and set into Plugin widget pointer. */
+        mag->plugin = gtk_toggle_button_new ();
+        gtk_button_set_relief (GTK_BUTTON (mag->plugin), GTK_RELIEF_NONE);
+        g_signal_connect (mag->plugin, "button-press-event", G_CALLBACK (mag_button_press_event), NULL);
+        gtk_widget_add_events (mag->plugin, GDK_BUTTON_PRESS_MASK);
 
+        /* Allocate icon as a child of top level */
+        mag->tray_icon = gtk_image_new ();
+        set_icon (panel, mag->tray_icon, "system-search", 0);
+        gtk_widget_set_tooltip_text (mag->tray_icon, _("Show virtual magnifier"));
+        gtk_widget_set_visible (mag->tray_icon, TRUE);
+        gtk_container_add (GTK_CONTAINER (mag->plugin), mag->tray_icon);
+
+        mag->pid = -1;
+    }
+    else
+    {
+        /* a NULL label has a width of zero; unlike an empty button... */
+        mag->plugin = gtk_label_new (NULL);
+    }
+
+    lxpanel_plugin_set_data (mag->plugin, mag, mag_destructor);
     return mag->plugin;
 }
 
