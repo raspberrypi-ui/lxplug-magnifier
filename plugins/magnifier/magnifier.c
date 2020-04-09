@@ -216,7 +216,7 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
     textdomain (GETTEXT_PACKAGE);
 #endif
 
-    READ_VAL ("Shape", mag->shape, 0, 1, 0);
+    READ_VAL ("Shape", mag->shape, 0, 1, 1);
     READ_VAL ("Zoom", mag->zoom, 2, 16, 2);
     READ_VAL ("Width", mag->width, 100, 600, 350);
     READ_VAL ("Height", mag->height, 100, 600, 350);
