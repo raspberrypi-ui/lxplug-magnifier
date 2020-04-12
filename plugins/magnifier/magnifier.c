@@ -105,48 +105,48 @@ static void set_icon (LXPanel *p, GtkWidget *image, const char *icon, int size)
     }
 }
 
+#define ADD_ARG(...) args[arg++] = g_strdup_printf (__VA_ARGS__)
+
 static void run_magnifier (MagnifierPlugin *mag)
 {
-    // create the command line arguments
+    // create the command line argument array
     char *args[16];
     int arg = 0;
-    args[arg++] = strdup (MAG_PROG);
+
+    ADD_ARG (MAG_PROG);
 
     if (mag->shape)
     {
-        args[arg++] = strdup ("-r");
-        args[arg++] = g_strdup_printf ("%d", mag->width);
-        args[arg++] = g_strdup_printf ("%d", mag->height);
+        ADD_ARG ("-r");
+        ADD_ARG ("%d", mag->width);
+        ADD_ARG ("%d", mag->height);
     }
     else
     {
-        args[arg++] = strdup ("-c");
-        args[arg++] = g_strdup_printf ("%d", mag->width);
+        ADD_ARG ("-c");
+        ADD_ARG ("%d", mag->width);
     }
 
-    args[arg++] = strdup ("-z");
-    args[arg++] = g_strdup_printf ("%d", mag->zoom);
+    ADD_ARG ("-z");
+    ADD_ARG ("%d", mag->zoom);
 
     if (mag->statwin)
     {
-        args[arg++] = strdup ("-s");
         if (mag->x < 0) mag->x = 0;
         if (mag->y < 0) mag->y = 0;
-        args[arg++] = g_strdup_printf ("%d", mag->x);
-        args[arg++] = g_strdup_printf ("%d", mag->y);
+        ADD_ARG ("-s");
+        ADD_ARG ("%d", mag->x);
+        ADD_ARG ("%d", mag->y);
     }
 
-    if (mag->followf) args[arg++] = strdup ("-m");
-    if (mag->followt) args[arg++] = strdup ("-t");
-    if (mag->filter) args[arg++] = strdup ("-f");
+    if (mag->followf) ADD_ARG ("-m");
+    if (mag->followt) ADD_ARG ("-t");
+    if (mag->filter) ADD_ARG ("-f");
     args[arg] = NULL;
 
     // launch the magnifier with the argument array
     execv ("/usr/bin/" MAG_PROG, args);
-
-    // free the array
-    arg = 0;
-    while (args[arg]) g_free (args[arg++]);
+    exit (0);
 }
 
 /* Handler for configure_event on drawing area. */
@@ -170,13 +170,12 @@ static gboolean mag_button_press_event (GtkWidget *widget, GdkEventButton *event
         if (mag->pid == -1)
         {
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mag->plugin), TRUE);
-            mag->pid = fork ();
 
+            mag->pid = fork ();
             if (mag->pid == 0)
             {
                 // new child process
                 run_magnifier (mag);
-                exit (0);
             }
         }
         else
@@ -248,7 +247,6 @@ static gboolean mag_apply_configuration (gpointer user_data)
         {
             // new child process
             run_magnifier (mag);
-            exit (0);
         }
     }
 }
