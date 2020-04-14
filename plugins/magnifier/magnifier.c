@@ -52,6 +52,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define BOUNDS(var,min,max) if (var < min) var = min; if (var > max) var = max;
 #define READ_VAL(name,var,low,high,def) if (config_setting_lookup_int (settings, name, &val) && val >= low && val <= high) var = val; else var = def;
+#define ADD_ARG(...) args[arg++] = g_strdup_printf (__VA_ARGS__)
 
 
 /* Private context for plugin */
@@ -104,8 +105,6 @@ static void set_icon (LXPanel *p, GtkWidget *image, const char *icon, int size)
         }
     }
 }
-
-#define ADD_ARG(...) args[arg++] = g_strdup_printf (__VA_ARGS__)
 
 static void run_magnifier (MagnifierPlugin *mag)
 {
@@ -197,11 +196,13 @@ static gboolean mag_control_msg (GtkWidget *plugin, const char *cmd)
     if (!strncmp (cmd, "pos", 3))
     {
         // get the location of the topmost window, which is the loupe
-        Window root, nullwd, *children;
-        int nwins, null;
-        Display *dsp = XOpenDisplay (NULL);
-        int scr = DefaultScreen (dsp);
-        Window rootwin = RootWindow (dsp, scr);
+        Window rootwin, root, nullwd, *children;
+        int nwins, null, scr;
+        Display *dsp;
+
+        dsp = XOpenDisplay (NULL);
+        scr = DefaultScreen (dsp);
+        rootwin = RootWindow (dsp, scr);
         XQueryTree (dsp, rootwin, &root, &nullwd, &children, &nwins);
         XGetGeometry (dsp, children[nwins - 1], &root, &mag->x, &mag->y, &null, &null, &null, &null);
         config_group_set_int (mag->settings, "StatX", mag->x);
