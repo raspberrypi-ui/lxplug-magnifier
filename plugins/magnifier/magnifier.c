@@ -48,12 +48,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define MAG_PROG "mage"
 
-#define ICON_BUTTON_TRIM 4
-
 #define BOUNDS(var,min,max) if (var < min) var = min; if (var > max) var = max;
 #define READ_VAL(name,var,low,high,def) if (config_setting_lookup_int (settings, name, &val) && val >= low && val <= high) var = val; else var = def;
 #define ADD_ARG(...) args[arg++] = g_strdup_printf (__VA_ARGS__)
-
 
 /* Private context for plugin */
 
@@ -76,35 +73,6 @@ typedef struct
     gboolean filter;
 } MagnifierPlugin;
 
-
-static void set_icon (LXPanel *p, GtkWidget *image, const char *icon, int size)
-{
-    GdkPixbuf *pixbuf;
-    if (size == 0) size = panel_get_icon_size (p) - ICON_BUTTON_TRIM;
-    if (gtk_icon_theme_has_icon (panel_get_icon_theme (p), icon))
-    {
-        GtkIconInfo *info = gtk_icon_theme_lookup_icon (panel_get_icon_theme (p), icon, size, GTK_ICON_LOOKUP_FORCE_SIZE);
-        pixbuf = gtk_icon_info_load_icon (info, NULL);
-        gtk_icon_info_free (info);
-        if (pixbuf != NULL)
-        {
-            gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbuf);
-            g_object_unref (pixbuf);
-            return;
-        }
-    }
-    else
-    {
-        char path[256];
-        sprintf (path, "%s/images/%s.png", PACKAGE_DATA_DIR, icon);
-        pixbuf = gdk_pixbuf_new_from_file_at_scale (path, size, size, TRUE, NULL);
-        if (pixbuf != NULL)
-        {
-            gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbuf);
-            g_object_unref (pixbuf);
-        }
-    }
-}
 
 static void run_magnifier (MagnifierPlugin *mag)
 {
@@ -152,7 +120,7 @@ static void run_magnifier (MagnifierPlugin *mag)
 static void mag_configuration_changed (LXPanel *panel, GtkWidget *p)
 {
     MagnifierPlugin *mag = lxpanel_plugin_get_data (p);
-    set_icon (panel, mag->tray_icon, "system-search", 0);
+    lxpanel_plugin_set_taskbar_icon (panel, mag->tray_icon, "system-search");
 }
 
 /* Handler for menu button click */
@@ -322,7 +290,7 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
 
         /* Allocate icon as a child of top level */
         mag->tray_icon = gtk_image_new ();
-        set_icon (panel, mag->tray_icon, "system-search", 0);
+        lxpanel_plugin_set_taskbar_icon (panel, mag->tray_icon, "system-search");
         gtk_widget_set_tooltip_text (mag->tray_icon, _("Show virtual magnifier"));
         gtk_widget_set_visible (mag->tray_icon, TRUE);
         gtk_container_add (GTK_CONTAINER (mag->plugin), mag->tray_icon);
