@@ -80,7 +80,7 @@ static void run_magnifier (MagnifierPlugin *mag)
     char *args[16];
     int arg = 0;
 
-    ADD_ARG (MAG_PROG);
+    ADD_ARG ("/usr/bin/" MAG_PROG);
 
     if (mag->shape)
     {
@@ -112,9 +112,10 @@ static void run_magnifier (MagnifierPlugin *mag)
     args[arg] = NULL;
 
     // launch the magnifier with the argument array
-    execv ("/usr/bin/" MAG_PROG, args);
-    exit (0);
+    g_spawn_async (NULL, args, NULL, G_SPAWN_DEFAULT, NULL, NULL, &mag->pid, NULL);
 }
+
+
 
 /* Handler for configure_event on drawing area. */
 static void mag_configuration_changed (LXPanel *panel, GtkWidget *p)
@@ -137,13 +138,7 @@ static gboolean mag_button_press_event (GtkWidget *widget, GdkEventButton *event
         if (mag->pid == -1)
         {
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mag->plugin), TRUE);
-
-            mag->pid = fork ();
-            if (mag->pid == 0)
-            {
-                // new child process
-                run_magnifier (mag);
-            }
+            run_magnifier (mag);
         }
         else
         {
@@ -211,12 +206,7 @@ static gboolean mag_apply_configuration (gpointer user_data)
     if (mag->pid != -1)
     {
         kill (mag->pid, SIGTERM);
-        mag->pid = fork ();
-        if (mag->pid == 0)
-        {
-            // new child process
-            run_magnifier (mag);
-        }
+        run_magnifier (mag);
     }
 }
 
@@ -278,9 +268,6 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
     READ_VAL ("UseFilter", mag->filter, 0, 1, 0);
     READ_VAL ("StatX", mag->x, 0, 2000, 0);
     READ_VAL ("StatY", mag->y, 0, 2000, 0);
-
-    // terminate zombie magnifiers automatically
-    signal (SIGCHLD, SIG_IGN);
 
     if (access ("/usr/bin/" MAG_PROG, F_OK) != -1)
     {
