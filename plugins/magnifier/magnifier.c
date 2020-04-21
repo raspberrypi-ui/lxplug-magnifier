@@ -35,18 +35,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include <string.h>
-#include <sys/time.h>
-#include <time.h>
-#include <sys/sysinfo.h>
-#include <stdlib.h>
 #include <glib/gi18n.h>
-#include <errno.h>
-#include <unistd.h>
 
 #include "plugin.h"
 
-#define MAG_PROG "mage"
+#define MAG_PROG "/usr/bin/mage"
 
 #define BOUNDS(var,min,max) if (var < min) var = min; if (var > max) var = max;
 #define READ_VAL(name,var,low,high,def) if (config_setting_lookup_int (settings, name, &val) && val >= low && val <= high) var = val; else var = def;
@@ -74,13 +67,22 @@ typedef struct
 } MagnifierPlugin;
 
 
+static void magnifier_closed_cb (GPid pid, gint status, gpointer user_data)
+{
+    MagnifierPlugin *mag = (MagnifierPlugin *) user_data;
+
+    mag->pid = -1;
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mag->plugin), FALSE);
+    g_spawn_close_pid (pid);
+}
+
 static void run_magnifier (MagnifierPlugin *mag)
 {
     // create the command line argument array
     char *args[16];
     int arg = 0;
 
-    ADD_ARG ("/usr/bin/" MAG_PROG);
+    ADD_ARG (MAG_PROG);
 
     if (mag->shape)
     {
@@ -112,10 +114,15 @@ static void run_magnifier (MagnifierPlugin *mag)
     args[arg] = NULL;
 
     // launch the magnifier with the argument array
-    g_spawn_async (NULL, args, NULL, G_SPAWN_DEFAULT, NULL, NULL, &mag->pid, NULL);
+    g_spawn_async (NULL, args, NULL, G_SPAWN_DO_NOT_REAP_CHILD, NULL, NULL, &mag->pid, NULL);
+    g_child_watch_add (mag->pid, magnifier_closed_cb, mag);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mag->plugin), TRUE);
 }
 
-
+static void stop_magnifier (MagnifierPlugin *mag)
+{
+    kill (mag->pid, SIGTERM);
+}
 
 /* Handler for configure_event on drawing area. */
 static void mag_configuration_changed (LXPanel *panel, GtkWidget *p)
@@ -128,24 +135,13 @@ static void mag_configuration_changed (LXPanel *panel, GtkWidget *p)
 static gboolean mag_button_press_event (GtkWidget *widget, GdkEventButton *event, LXPanel *panel)
 {
     MagnifierPlugin *mag = lxpanel_plugin_get_data (widget);
-    int status;
 
     /* Launch or kill the magnifier application on left-click */
     if (event->button == 1)
     {
         // check the process hasn't died...
-        if (kill (mag->pid, 0) == -1 && errno == ESRCH) mag->pid = -1;
-        if (mag->pid == -1)
-        {
-            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mag->plugin), TRUE);
-            run_magnifier (mag);
-        }
-        else
-        {
-            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mag->plugin), FALSE);
-            kill (mag->pid, SIGTERM);
-            mag->pid = -1;
-        }
+        if (mag->pid == -1) run_magnifier (mag);
+        else stop_magnifier (mag);
         return TRUE;
     }
     else return FALSE;
@@ -205,7 +201,7 @@ static gboolean mag_apply_configuration (gpointer user_data)
 
     if (mag->pid != -1)
     {
-        kill (mag->pid, SIGTERM);
+        stop_magnifier (mag);
         run_magnifier (mag);
     }
 }
@@ -269,7 +265,7 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
     READ_VAL ("StatX", mag->x, 0, 2000, 0);
     READ_VAL ("StatY", mag->y, 0, 2000, 0);
 
-    if (access ("/usr/bin/" MAG_PROG, F_OK) != -1)
+    if (access (MAG_PROG, F_OK) != -1)
     {
         /* Allocate top level widget and set into Plugin widget pointer. */
         mag->plugin = gtk_toggle_button_new ();
