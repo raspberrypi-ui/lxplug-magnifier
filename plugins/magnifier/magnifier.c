@@ -170,6 +170,13 @@ static gboolean mag_control_msg (GtkWidget *plugin, const char *cmd)
         return TRUE;
     }
 
+    if (!strncmp (cmd, "toggle", 6))
+    {
+        if (mag->pid == -1) run_magnifier (mag);
+        else stop_magnifier (mag);
+        return TRUE;
+    }
+
     return FALSE;
 }
 
