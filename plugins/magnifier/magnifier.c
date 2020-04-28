@@ -136,6 +136,10 @@ static gboolean mag_button_press_event (GtkWidget *widget, GdkEventButton *event
 {
     MagnifierPlugin *mag = lxpanel_plugin_get_data (widget);
 
+#ifdef ENABLE_NLS
+    textdomain (GETTEXT_PACKAGE);
+#endif
+
     /* Launch or kill the magnifier application on left-click */
     if (event->button == 1)
     {
@@ -308,4 +312,5 @@ LXPanelPluginInit fm_module_init_lxpanel_gtk = {
     .reconfigure = mag_configuration_changed,
     .button_press_event = mag_button_press_event,
     .control = mag_control_msg,
+    .gettext_package = GETTEXT_PACKAGE
 };
