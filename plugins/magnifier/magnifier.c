@@ -53,6 +53,7 @@ typedef struct
     LXPanel *panel;                 /* Back pointer to panel */
     GtkWidget *tray_icon;           /* Displayed image */
     config_setting_t *settings;     /* Plugin settings */
+    int padding;
     int pid;                        /* PID for magnifier executable */
     int shape;
     int width;
@@ -129,6 +130,7 @@ static void mag_configuration_changed (LXPanel *panel, GtkWidget *p)
 {
     MagnifierPlugin *mag = lxpanel_plugin_get_data (p);
     lxpanel_plugin_set_taskbar_icon (panel, mag->tray_icon, "system-search");
+    if (mag->padding) gtk_widget_set_size_request (mag->tray_icon, panel_get_safe_icon_size (mag->panel) + 2 * mag->padding, -1);
 }
 
 /* Handler for menu button click */
@@ -275,6 +277,7 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
     READ_VAL ("UseFilter", mag->filter, 0, 1, 0);
     READ_VAL ("StatX", mag->x, 0, 2000, 0);
     READ_VAL ("StatY", mag->y, 0, 2000, 0);
+    READ_VAL ("padding", mag->padding, 0, 100, 0);
 
     if (access (MAG_PROG, F_OK) != -1)
     {
@@ -287,6 +290,7 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
         lxpanel_plugin_set_taskbar_icon (panel, mag->tray_icon, "system-search");
         gtk_widget_set_tooltip_text (mag->tray_icon, _("Show virtual magnifier"));
         gtk_widget_set_visible (mag->tray_icon, TRUE);
+        if (mag->padding) gtk_widget_set_size_request (mag->tray_icon, panel_get_safe_icon_size (mag->panel) + 2 * mag->padding, -1);
         gtk_container_add (GTK_CONTAINER (mag->plugin), mag->tray_icon);
 
         mag->pid = -1;
