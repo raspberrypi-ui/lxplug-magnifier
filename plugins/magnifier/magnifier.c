@@ -64,8 +64,10 @@ typedef struct
     gboolean followf;
     gboolean followt;
     gboolean filter;
+    gboolean restart;
 } MagnifierPlugin;
 
+static void run_magnifier (MagnifierPlugin *mag);
 
 static void magnifier_closed_cb (GPid pid, gint status, gpointer user_data)
 {
@@ -74,6 +76,11 @@ static void magnifier_closed_cb (GPid pid, gint status, gpointer user_data)
     mag->pid = -1;
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mag->plugin), FALSE);
     g_spawn_close_pid (pid);
+    if (mag->restart)
+    {
+        mag->restart = FALSE;
+        run_magnifier (mag);
+    }
 }
 
 static void run_magnifier (MagnifierPlugin *mag)
@@ -119,9 +126,10 @@ static void run_magnifier (MagnifierPlugin *mag)
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mag->plugin), TRUE);
 }
 
-static void stop_magnifier (MagnifierPlugin *mag)
+static void toggle_magnifier (MagnifierPlugin *mag)
 {
-    kill (mag->pid, SIGTERM);
+    if (mag->pid == -1) run_magnifier (mag);
+    else kill (mag->pid, SIGTERM);
 }
 
 /* Handler for configure_event on drawing area. */
@@ -143,9 +151,7 @@ static gboolean mag_button_press_event (GtkWidget *widget, GdkEventButton *event
     /* Launch or kill the magnifier application on left-click */
     if (event->button == 1)
     {
-        // check the process hasn't died...
-        if (mag->pid == -1) run_magnifier (mag);
-        else stop_magnifier (mag);
+        toggle_magnifier (mag);
         return TRUE;
     }
     else return FALSE;
@@ -176,8 +182,7 @@ static gboolean mag_control_msg (GtkWidget *plugin, const char *cmd)
 
     if (!strncmp (cmd, "toggle", 6))
     {
-        if (mag->pid == -1) run_magnifier (mag);
-        else stop_magnifier (mag);
+        toggle_magnifier (mag);
         return TRUE;
     }
 
@@ -212,8 +217,8 @@ static gboolean mag_apply_configuration (gpointer user_data)
 
     if (mag->pid != -1)
     {
-        stop_magnifier (mag);
-        run_magnifier (mag);
+        mag->restart = TRUE;
+        kill (mag->pid, SIGTERM);
     }
 }
 
@@ -290,6 +295,7 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
         gtk_container_add (GTK_CONTAINER (mag->plugin), mag->tray_icon);
 
         mag->pid = -1;
+        mag->restart = FALSE;
     }
     else
     {
