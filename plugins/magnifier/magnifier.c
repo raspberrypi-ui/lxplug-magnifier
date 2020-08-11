@@ -157,6 +157,25 @@ static gboolean mag_button_press_event (GtkWidget *widget, GdkEventButton *event
     else return FALSE;
 }
 
+/* Handler for mouse scroll */
+static void mag_mouse_scrolled (GtkScale *scale, GdkEventScroll *evt, MagnifierPlugin *mag)
+{
+    if (mag->pid == -1) return;
+
+    if (evt->direction == GDK_SCROLL_UP || evt->direction == GDK_SCROLL_LEFT)
+    {
+        if (mag->zoom < 16) mag->zoom += 1;
+    }
+    else
+    {
+        if (mag->zoom > 2) mag->zoom -= 1;
+    }
+    config_group_set_int (mag->settings, "Zoom", mag->zoom);
+    lxpanel_config_save (mag->panel);
+    mag->restart = TRUE;
+    kill (mag->pid, SIGTERM);
+}
+
 /* Handler for control message from panel */
 static gboolean mag_control_msg (GtkWidget *plugin, const char *cmd)
 {
@@ -286,6 +305,7 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
         /* Allocate top level widget and set into Plugin widget pointer. */
         mag->plugin = gtk_toggle_button_new ();
         gtk_button_set_relief (GTK_BUTTON (mag->plugin), GTK_RELIEF_NONE);
+        g_signal_connect (mag->plugin, "scroll-event", G_CALLBACK (mag_mouse_scrolled), mag);
 
         /* Allocate icon as a child of top level */
         mag->tray_icon = gtk_image_new ();
