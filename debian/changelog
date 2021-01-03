@@ -1,3 +1,15 @@
+lxplug-magnifier (0.5) buster; urgency=medium
+
+  * Added Slovak translation
+
+ -- Simon Long <simon@raspberrypi.com>  Sun, 03 Jan 2021 21:53:15 +0000
+
+lxplug-magnifier (0.4) buster; urgency=medium
+
+  * Fix preferences crash when mage not installed
+
+ -- Simon Long <simon@raspberrypi.com>  Mon, 14 Dec 2020 19:20:57 +0000
+
 lxplug-magnifier (0.3) buster; urgency=medium
 
   * Add mouse wheel scroll to zoom
