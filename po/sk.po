@@ -1,0 +1,71 @@
+# Slovak translations for lxplug_magnifier package.
+# Copyright (C) 2020 Raspberry Pi (Trading) Ltd.
+# This file is distributed under the same license as the lxplug_magnifier package.
+# Jose Riha <jose1711 gmail com>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: lxplug_magnifier 0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-04-09 14:07+0100\n"
+"PO-Revision-Date: 2020-12-20 17:26+0100\n"
+"Last-Translator: Jose Riha <jose1711@gmail.com>\n"
+"Language-Team: Slovak\n"
+"Language: sk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 2.4.1\n"
+
+#: ../plugins/magnifier/magnifier.c:262
+msgid "Virtual Magnifier"
+msgstr "Virtuálna lupa"
+
+#: ../plugins/magnifier/magnifier.c:264
+msgid "Circle"
+msgstr "Kruh"
+
+#: ../plugins/magnifier/magnifier.c:265
+msgid "Rectangle"
+msgstr "Obdĺžnik"
+
+#: ../plugins/magnifier/magnifier.c:266
+msgid "Width"
+msgstr "Šírka"
+
+#: ../plugins/magnifier/magnifier.c:267
+msgid "Height"
+msgstr "Výška"
+
+#: ../plugins/magnifier/magnifier.c:268
+msgid "Zoom"
+msgstr "Priblíženie"
+
+#: ../plugins/magnifier/magnifier.c:269
+msgid "Static window"
+msgstr "Statické okno"
+
+#: ../plugins/magnifier/magnifier.c:270
+msgid "Follow focus"
+msgstr "Sledovať kurzor"
+
+#: ../plugins/magnifier/magnifier.c:271
+msgid "Follow text cursor"
+msgstr "Sledovať textový kurzor"
+
+#: ../plugins/magnifier/magnifier.c:272
+msgid "Bilinear filter"
+msgstr "Bilineárny filter"
+
+#: ../plugins/magnifier/magnifier.c:324
+msgid "Show virtual magnifier"
+msgstr "Zobraziť virtuálnu lupu"
+
+#: ../plugins/magnifier/magnifier.c:344
+msgid "Magnifier"
+msgstr "Lupa"
+
+#: ../plugins/magnifier/magnifier.c:345
+msgid "Virtual magnifying glass"
+msgstr "Virtuálna lupa"
