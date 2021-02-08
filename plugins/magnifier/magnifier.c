@@ -136,7 +136,8 @@ static void toggle_magnifier (MagnifierPlugin *mag)
 static void mag_configuration_changed (LXPanel *panel, GtkWidget *p)
 {
     MagnifierPlugin *mag = lxpanel_plugin_get_data (p);
-    lxpanel_plugin_set_taskbar_icon (panel, mag->tray_icon, "system-search");
+    if (mag->tray_icon)
+        lxpanel_plugin_set_taskbar_icon (panel, mag->tray_icon, "system-search");
 }
 
 /* Handler for menu button click */
@@ -321,6 +322,7 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
     {
         /* a NULL label has a width of zero; unlike an empty button... */
         mag->plugin = gtk_label_new (NULL);
+        mag->tray_icon = NULL;
     }
 
     lxpanel_plugin_set_data (mag->plugin, mag, mag_destructor);
