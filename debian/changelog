@@ -1,3 +1,9 @@
+lxplug-magnifier (0.6) buster; urgency=medium
+
+  * Added Icelandic translation
+
+ -- Simon Long <simon@raspberrypi.com>  Thu, 18 Mar 2021 17:45:58 +0000
+
 lxplug-magnifier (0.5) buster; urgency=medium
 
   * Added Slovak translation
