@@ -65,9 +65,19 @@ typedef struct
     gboolean followt;
     gboolean filter;
     gboolean restart;
+    gboolean mutter;
 } MagnifierPlugin;
 
 static void run_magnifier (MagnifierPlugin *mag);
+
+static void mutter_override (MagnifierPlugin *mag, gboolean state)
+{
+    if (mag->mutter)
+    {
+        if (state) system ("gsettings set org.gnome.mutter disable-override-redirect true");
+        else system ("gsettings set org.gnome.mutter disable-override-redirect false");
+    }
+}
 
 static void magnifier_closed_cb (GPid pid, gint status, gpointer user_data)
 {
@@ -81,6 +91,7 @@ static void magnifier_closed_cb (GPid pid, gint status, gpointer user_data)
         mag->restart = FALSE;
         run_magnifier (mag);
     }
+    else mutter_override (mag, FALSE);
 }
 
 static void run_magnifier (MagnifierPlugin *mag)
@@ -118,7 +129,14 @@ static void run_magnifier (MagnifierPlugin *mag)
     if (mag->followf) ADD_ARG ("-m");
     if (mag->followt) ADD_ARG ("-t");
     if (mag->filter) ADD_ARG ("-f");
+    if (mag->mutter)
+    {
+        ADD_ARG ("-o");
+        ADD_ARG ("5");
+    }
     args[arg] = NULL;
+
+    mutter_override (mag, TRUE);
 
     // launch the magnifier with the argument array
     g_spawn_async (NULL, args, NULL, G_SPAWN_DO_NOT_REAP_CHILD, NULL, NULL, &mag->pid, NULL);
@@ -324,6 +342,9 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
         mag->plugin = gtk_label_new (NULL);
         mag->tray_icon = NULL;
     }
+
+    if (!system ("ps ax | grep -v grep | grep -q mutter")) mag->mutter = TRUE;
+    else mag->mutter = FALSE;
 
     lxpanel_plugin_set_data (mag->plugin, mag, mag_destructor);
     return mag->plugin;
