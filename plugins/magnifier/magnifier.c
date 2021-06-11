@@ -129,11 +129,7 @@ static void run_magnifier (MagnifierPlugin *mag)
     if (mag->followf) ADD_ARG ("-m");
     if (mag->followt) ADD_ARG ("-t");
     if (mag->filter) ADD_ARG ("-f");
-    if (mag->mutter)
-    {
-        ADD_ARG ("-o");
-        ADD_ARG ("5");
-    }
+
     args[arg] = NULL;
 
     mutter_override (mag, TRUE);
