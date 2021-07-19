@@ -142,6 +142,7 @@ static void run_magnifier (MagnifierPlugin *mag)
 
 static void toggle_magnifier (MagnifierPlugin *mag)
 {
+    if (!mag->tray_icon) return;
     if (mag->pid == -1) run_magnifier (mag);
     else kill (mag->pid, SIGTERM);
 }

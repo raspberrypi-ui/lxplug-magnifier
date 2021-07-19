@@ -1,3 +1,9 @@
+lxplug-magnifier (0.11) bullseye; urgency=medium
+
+  * Don't allow toggle operation with no magnifier installed
+
+ -- Simon Long <simon@raspberrypi.com>  Mon, 19 Jul 2021 10:54:29 +0100
+
 lxplug-magnifier (0.10) bullseye; urgency=medium
 
   * Remove offset parameter
