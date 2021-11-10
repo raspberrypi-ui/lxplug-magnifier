@@ -1,3 +1,9 @@
+lxplug-magnifier (0.12) bullseye; urgency=medium
+
+  * Don't allow configure dialog with no magnifier installed
+
+ -- Simon Long <simon@raspberrypi.com>  Wed, 10 Nov 2021 22:29:17 +0000
+
 lxplug-magnifier (0.11) bullseye; urgency=medium
 
   * Don't allow toggle operation with no magnifier installed

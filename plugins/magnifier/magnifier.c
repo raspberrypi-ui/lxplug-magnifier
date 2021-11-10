@@ -266,6 +266,8 @@ static GtkWidget *mag_configure (LXPanel *panel, GtkWidget *p)
     textdomain (GETTEXT_PACKAGE);
 #endif
 
+    if (!mag->tray_icon) return NULL;
+
     return lxpanel_generic_config_dlg (_("Virtual Magnifier"), panel,
         mag_apply_configuration, p,
         _("Circle"), &mag->shape, CONF_TYPE_RBUTTON,
