@@ -66,6 +66,7 @@ typedef struct
     gboolean filter;
     gboolean restart;
     gboolean mutter;
+    gboolean prog;
 } MagnifierPlugin;
 
 static void run_magnifier (MagnifierPlugin *mag);
@@ -142,27 +143,27 @@ static void run_magnifier (MagnifierPlugin *mag)
 
 static void toggle_magnifier (MagnifierPlugin *mag)
 {
-    if (!mag->tray_icon) return;
+    if (!mag->prog) return;
+
     if (mag->pid == -1) run_magnifier (mag);
     else kill (mag->pid, SIGTERM);
 }
 
-/* Handler for configure_event on drawing area. */
+/* Handler for system config changed message from panel */
 static void mag_configuration_changed (LXPanel *panel, GtkWidget *p)
 {
     MagnifierPlugin *mag = lxpanel_plugin_get_data (p);
-    if (mag->tray_icon)
+
+    if (mag->prog)
         lxpanel_plugin_set_taskbar_icon (panel, mag->tray_icon, "system-search");
+    else
+        gtk_widget_hide (mag->plugin);
 }
 
 /* Handler for menu button click */
 static gboolean mag_button_press_event (GtkWidget *widget, GdkEventButton *event, LXPanel *panel)
 {
     MagnifierPlugin *mag = lxpanel_plugin_get_data (widget);
-
-#ifdef ENABLE_NLS
-    textdomain (GETTEXT_PACKAGE);
-#endif
 
     /* Launch or kill the magnifier application on left-click */
     if (event->button == 1)
@@ -262,11 +263,7 @@ static GtkWidget *mag_configure (LXPanel *panel, GtkWidget *p)
 {
     MagnifierPlugin *mag = lxpanel_plugin_get_data (p);
 
-#ifdef ENABLE_NLS
-    textdomain (GETTEXT_PACKAGE);
-#endif
-
-    if (!mag->tray_icon) return NULL;
+    if (!mag->prog) return NULL;
 
     return lxpanel_generic_config_dlg (_("Virtual Magnifier"), panel,
         mag_apply_configuration, p,
@@ -294,19 +291,34 @@ static void mag_destructor (gpointer user_data)
 /* Plugin constructor. */
 static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
 {
-    /* Allocate plugin context and set into Plugin private data pointer. */
+    /* Allocate and initialize plugin context */
     MagnifierPlugin *mag = g_new0 (MagnifierPlugin, 1);
     int val;
-    mag->panel = panel;
-    mag->settings = settings;
 
 #ifdef ENABLE_NLS
     setlocale (LC_ALL, "");
     bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-    textdomain (GETTEXT_PACKAGE);
 #endif
 
+    /* Allocate top level widget and set into plugin widget pointer */
+    mag->panel = panel;
+    mag->settings = settings;
+    mag->plugin = gtk_toggle_button_new ();
+    lxpanel_plugin_set_data (mag->plugin, mag, mag_destructor);
+
+    /* Allocate icon as a child of top level */
+    mag->tray_icon = gtk_image_new ();
+    gtk_container_add (GTK_CONTAINER (mag->plugin), mag->tray_icon);
+    lxpanel_plugin_set_taskbar_icon (panel, mag->tray_icon, "system-search");
+    gtk_widget_set_tooltip_text (mag->tray_icon, _("Show virtual magnifier"));
+
+    /* Set up button */
+    gtk_button_set_relief (GTK_BUTTON (mag->plugin), GTK_RELIEF_NONE);
+    g_signal_connect (mag->plugin, "scroll-event", G_CALLBACK (mag_mouse_scrolled), mag);
+    gtk_widget_add_events (mag->plugin, GDK_SCROLL_MASK);
+
+    /* Set up variables */
     READ_VAL ("Shape", mag->shape, 0, 1, 1);
     READ_VAL ("Zoom", mag->zoom, 2, 16, 2);
     READ_VAL ("Width", mag->width, 100, 600, 350);
@@ -320,45 +332,30 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
 
     if (access (MAG_PROG, F_OK) != -1)
     {
-        /* Allocate top level widget and set into Plugin widget pointer. */
-        mag->plugin = gtk_toggle_button_new ();
-        gtk_button_set_relief (GTK_BUTTON (mag->plugin), GTK_RELIEF_NONE);
-        g_signal_connect (mag->plugin, "scroll-event", G_CALLBACK (mag_mouse_scrolled), mag);
-
-        /* Allocate icon as a child of top level */
-        mag->tray_icon = gtk_image_new ();
-        lxpanel_plugin_set_taskbar_icon (panel, mag->tray_icon, "system-search");
-        gtk_widget_set_tooltip_text (mag->tray_icon, _("Show virtual magnifier"));
-        gtk_widget_set_visible (mag->tray_icon, TRUE);
-        gtk_container_add (GTK_CONTAINER (mag->plugin), mag->tray_icon);
-
         mag->pid = -1;
         mag->restart = FALSE;
+        mag->prog = TRUE;
     }
-    else
-    {
-        /* a NULL label has a width of zero; unlike an empty button... */
-        mag->plugin = gtk_label_new (NULL);
-        mag->tray_icon = NULL;
-    }
+    else mag->prog = FALSE;
 
     if (!system ("ps ax | grep -v grep | grep -q mutter")) mag->mutter = TRUE;
     else mag->mutter = FALSE;
 
-    lxpanel_plugin_set_data (mag->plugin, mag, mag_destructor);
+    /* Show the widget and return */
+    gtk_widget_show_all (mag->plugin);
     return mag->plugin;
 }
 
-FM_DEFINE_MODULE(lxpanel_gtk, magnifier)
+FM_DEFINE_MODULE (lxpanel_gtk, magnifier)
 
 /* Plugin descriptor. */
 LXPanelPluginInit fm_module_init_lxpanel_gtk = {
     .name = N_("Magnifier"),
     .description = N_("Virtual magnifying glass"),
     .new_instance = mag_constructor,
-    .config = mag_configure,
     .reconfigure = mag_configuration_changed,
     .button_press_event = mag_button_press_event,
+    .config = mag_configure,
     .control = mag_control_msg,
     .gettext_package = GETTEXT_PACKAGE
 };

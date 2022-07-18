@@ -1,3 +1,9 @@
+lxplug-magnifier (0.13) bullseye; urgency=medium
+
+  * Tidy constructor; fix translations
+
+ -- Simon Long <simon@raspberrypi.com>  Mon, 18 Jul 2022 14:13:32 +0100
+
 lxplug-magnifier (0.12) bullseye; urgency=medium
 
   * Don't allow configure dialog with no magnifier installed
