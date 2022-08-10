@@ -202,7 +202,8 @@ static gboolean mag_control_msg (GtkWidget *plugin, const char *cmd)
     {
         // get the location of the topmost window, which is the loupe
         Window rootwin, root, nullwd, *children;
-        int nwins, null, scr;
+        int scr;
+        unsigned int nwins, null;
         Display *dsp;
 
         dsp = XOpenDisplay (NULL);
@@ -256,6 +257,8 @@ static gboolean mag_apply_configuration (gpointer user_data)
         mag->restart = TRUE;
         kill (mag->pid, SIGTERM);
     }
+
+    return FALSE;
 }
 
 /* Callback when the configuration dialog is to be shown. */
