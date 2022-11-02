@@ -1,0 +1,71 @@
+# English translations for lxplug_magnifier package.
+# Copyright (C) 2020 Raspberry Pi (Trading) Ltd.
+# This file is distributed under the same license as the lxplug_magnifier package.
+# Simon Long <simon@raspberrypi.com>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: lxplug_magnifier 0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-04-09 14:07+0100\n"
+"PO-Revision-Date: 2022-11-02 13:30+0900\n"
+"Last-Translator: Lee Yunseok <ironyunseok@protonmail.com>\n"
+"Language-Team: Korean\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 2.4.2\n"
+
+#: ../plugins/magnifier/magnifier.c:262
+msgid "Virtual Magnifier"
+msgstr "가상 돋보기"
+
+#: ../plugins/magnifier/magnifier.c:264
+msgid "Circle"
+msgstr "원형"
+
+#: ../plugins/magnifier/magnifier.c:265
+msgid "Rectangle"
+msgstr "직사각형"
+
+#: ../plugins/magnifier/magnifier.c:266
+msgid "Width"
+msgstr "가로"
+
+#: ../plugins/magnifier/magnifier.c:267
+msgid "Height"
+msgstr "세로"
+
+#: ../plugins/magnifier/magnifier.c:268
+msgid "Zoom"
+msgstr "확대율"
+
+#: ../plugins/magnifier/magnifier.c:269
+msgid "Static window"
+msgstr "고정 창"
+
+#: ../plugins/magnifier/magnifier.c:270
+msgid "Follow focus"
+msgstr "포커스 따르기"
+
+#: ../plugins/magnifier/magnifier.c:271
+msgid "Follow text cursor"
+msgstr "텍스트 커서 따르기"
+
+#: ../plugins/magnifier/magnifier.c:272
+msgid "Bilinear filter"
+msgstr "쌍선형 필터"
+
+#: ../plugins/magnifier/magnifier.c:324
+msgid "Show virtual magnifier"
+msgstr "가상 돋보기 표시"
+
+#: ../plugins/magnifier/magnifier.c:344
+msgid "Magnifier"
+msgstr "돋보기"
+
+#: ../plugins/magnifier/magnifier.c:345
+msgid "Virtual magnifying glass"
+msgstr "가상 확대경"
