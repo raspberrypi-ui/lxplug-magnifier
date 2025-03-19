@@ -1,3 +1,9 @@
+lxplug-magnifier (0.15) bookworm; urgency=medium
+
+  * Remove unnecessary dependencies
+
+ -- Simon Long <simon@raspberrypi.com>  Wed, 19 Mar 2025 07:41:40 +0000
+
 lxplug-magnifier (0.14) bullseye; urgency=medium
 
   * Add Korean translation
