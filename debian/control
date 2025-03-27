@@ -3,14 +3,14 @@ Section: x11
 Priority: optional
 Maintainer: Simon Long <simon@raspberrypi.com>
 Build-Depends:
- debhelper (>= 9), dh-autoreconf, intltool, libgtk-3-dev (>= 3.24),
- lxpanel-dev (>= 0.10.1-1+rpt1)
-Standards-Version: 4.3.0
-Homepage: http://raspberrypi.org/
+ debhelper-compat (= 13), meson, intltool, libgtk-3-dev (>= 3.24),
+ lxpanel-dev (>= 0.10.1-2+rpt21)
+Standards-Version: 4.5.1
+Homepage: http://raspberrypi.com/
 
 Package: lxplug-magnifier
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends},
- lxpanel (>= 0.10.1-1+rpt1), lxpanel-data (>= 0.10.1-1+rpt1)
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ lxpanel (>= 0.10.1-2+rpt21), lxpanel-data (>= 0.10.1-2+rpt21)
 Description: Magnifier plugin for lxpanel
  Plugin for lxpanel to launch external screen magnifier program

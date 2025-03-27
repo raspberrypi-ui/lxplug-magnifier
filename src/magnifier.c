@@ -32,9 +32,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+#include <locale.h>
 #include <glib/gi18n.h>
 
 #include "plugin.h"
@@ -298,11 +296,9 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
     MagnifierPlugin *mag = g_new0 (MagnifierPlugin, 1);
     int val;
 
-#ifdef ENABLE_NLS
     setlocale (LC_ALL, "");
     bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-#endif
 
     /* Allocate top level widget and set into plugin widget pointer */
     mag->panel = panel;

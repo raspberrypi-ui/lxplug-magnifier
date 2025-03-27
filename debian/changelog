@@ -1,3 +1,9 @@
+lxplug-magnifier (0.16) bookworm; urgency=medium
+
+  * Switch to meson build system
+
+ -- Simon Long <simon@raspberrypi.com>  Thu, 27 Mar 2025 14:46:41 +0000
+
 lxplug-magnifier (0.15) bookworm; urgency=medium
 
   * Remove unnecessary dependencies
