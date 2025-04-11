@@ -37,7 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "plugin.h"
 
-#define MAG_PROG "/usr/bin/mage"
+#define MAG_PROG "/usr/bin/mage-rpi"
 
 #define BOUNDS(var,min,max) if (var < min) var = min; if (var > max) var = max;
 #define READ_VAL(name,var,low,high,def) if (config_setting_lookup_int (settings, name, &val) && val >= low && val <= high) var = val; else var = def;

@@ -1,3 +1,9 @@
+lxplug-magnifier (0.17) bookworm; urgency=medium
+
+  * Rename magnifier executable
+
+ -- Simon Long <simon@raspberrypi.com>  Fri, 11 Apr 2025 15:36:28 +0100
+
 lxplug-magnifier (0.16) bookworm; urgency=medium
 
   * Switch to meson build system
