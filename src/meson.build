@@ -1,5 +1,4 @@
 gtk = dependency('gtk+-3.0')
-gtkmm = dependency('gtkmm-3.0', version: '>=3.24')
 
 lsources = files(
   'magnifier.c'
