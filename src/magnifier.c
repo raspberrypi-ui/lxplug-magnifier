@@ -37,6 +37,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "plugin.h"
 
+#define PLUGIN_TITLE N_("Magnifier")
+
 #define MAG_PROG "/usr/bin/mage-rpi"
 
 #define BOUNDS(var,min,max) if (var < min) var = min; if (var > max) var = max;
@@ -266,7 +268,7 @@ static GtkWidget *mag_configure (LXPanel *panel, GtkWidget *p)
 
     if (!mag->prog) return NULL;
 
-    return lxpanel_generic_config_dlg (_("Virtual Magnifier"), panel,
+    return lxpanel_generic_config_dlg (_(PLUGIN_TITLE), panel,
         mag_apply_configuration, p,
         _("Circle"), &mag->shape, CONF_TYPE_RBUTTON,
         _("Rectangle"), &mag->shape, CONF_TYPE_RBUTTON,
@@ -345,11 +347,12 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
     return mag->plugin;
 }
 
-FM_DEFINE_MODULE (lxpanel_gtk, magnifier)
+int module_lxpanel_gtk_version = __FM_DEFINE_VERSION__(lxpanel_gtk);
+char module_name[] = PLUGIN_NAME;
 
 /* Plugin descriptor. */
 LXPanelPluginInit fm_module_init_lxpanel_gtk = {
-    .name = N_("Magnifier"),
+    .name = PLUGIN_TITLE,
     .description = N_("Virtual magnifying glass"),
     .new_instance = mag_constructor,
     .reconfigure = mag_configuration_changed,
