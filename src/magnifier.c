@@ -1,12 +1,5 @@
-/*
- * Magnifier plugin for LXPanel
- *
- * Copyright for relevant code as for LXPanel
- *
- */
-
-/*
-Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
+/*============================================================================
+Copyright (c) 2020 Raspberry Pi
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,12 +23,16 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+============================================================================*/
 
 #include <locale.h>
 #include <glib/gi18n.h>
 
 #include "plugin.h"
+
+/*----------------------------------------------------------------------------*/
+/* Typedefs and macros                                                        */
+/*----------------------------------------------------------------------------*/
 
 #define PLUGIN_TITLE N_("Magnifier")
 
@@ -69,7 +66,19 @@ typedef struct
     gboolean prog;
 } MagnifierPlugin;
 
+/*----------------------------------------------------------------------------*/
+/* Global data                                                                */
+/*----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------*/
+/* Prototypes                                                                 */
+/*----------------------------------------------------------------------------*/
+
 static void run_magnifier (MagnifierPlugin *mag);
+
+/*----------------------------------------------------------------------------*/
+/* Function definitions                                                       */
+/*----------------------------------------------------------------------------*/
 
 static void mutter_override (MagnifierPlugin *mag, gboolean state)
 {
@@ -361,3 +370,6 @@ LXPanelPluginInit fm_module_init_lxpanel_gtk = {
     .control = mag_control_msg,
     .gettext_package = GETTEXT_PACKAGE
 };
+
+/* End of file */
+/*----------------------------------------------------------------------------*/
