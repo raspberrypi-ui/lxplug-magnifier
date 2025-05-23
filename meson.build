@@ -10,7 +10,7 @@ project(
 )
 
 share_dir = join_paths(get_option('prefix'), 'share')
-lresource_dir = join_paths(share_dir, 'lxpanel')
+lresource_dir = join_paths(share_dir, 'lxpanel-pi')
 wresource_dir = join_paths(share_dir, 'wf-panel-pi')
 metadata_dir = join_paths(wresource_dir, 'metadata')
 
