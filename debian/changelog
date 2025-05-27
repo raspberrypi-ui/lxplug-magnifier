@@ -1,3 +1,9 @@
+lxplug-magnifier (0.18) trixie; urgency=medium
+
+  * Modify for lxpanel-pi
+
+ -- Simon Long <simon@raspberrypi.com>  Tue, 27 May 2025 07:38:32 +0100
+
 lxplug-magnifier (0.17) bookworm; urgency=medium
 
   * Rename magnifier executable
