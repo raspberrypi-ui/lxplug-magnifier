@@ -356,7 +356,7 @@ static GtkWidget *mag_constructor (LXPanel *panel, config_setting_t *settings)
     return mag->plugin;
 }
 
-int module_lxpanel_gtk_version = __FM_DEFINE_VERSION__(lxpanel_gtk);
+int module_lxpanel_gtk_version = 1;
 char module_name[] = PLUGIN_NAME;
 
 /* Plugin descriptor. */
