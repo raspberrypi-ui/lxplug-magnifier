@@ -1,4 +1,4 @@
-Source: lxplug-magnifier
+Source: lpplug-magnifier
 Section: x11
 Priority: optional
 Maintainer: Simon Long <simon@raspberrypi.com>
@@ -8,9 +8,9 @@ Build-Depends:
 Standards-Version: 4.5.1
 Homepage: http://raspberrypi.com/
 
-Package: lxplug-magnifier
+Package: lpplug-magnifier
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
  lxpanel-pi
-Description: Magnifier plugin for lxpanel
- Plugin for lxpanel to launch external screen magnifier program
+Description: Magnifier plugin for lxpanel-pi
+ Plugin for lxpanel-pi to launch external screen magnifier program
