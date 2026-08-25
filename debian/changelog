@@ -1,3 +1,9 @@
+lpplug-magnifier (1.1) trixie; urgency=medium
+
+  * Modify for latest plugin architecture
+
+ -- Simon Long <simon@raspberrypi.com>  Fri, 07 Aug 2026 10:21:55 +0100
+
 lpplug-magnifier (1.0) trixie; urgency=medium
 
   * Modify for lxpanel-pi
