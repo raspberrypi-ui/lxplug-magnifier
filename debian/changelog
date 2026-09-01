@@ -1,3 +1,9 @@
+lpplug-magnifier (1.3) trixie; urgency=medium
+
+  * Add Georgian translation
+
+ -- Simon Long <simon@raspberrypi.com>  Tue, 01 Sep 2026 11:38:46 +0100
+
 lpplug-magnifier (1.2) trixie; urgency=medium
 
   * Modify for new lxpanel shims
